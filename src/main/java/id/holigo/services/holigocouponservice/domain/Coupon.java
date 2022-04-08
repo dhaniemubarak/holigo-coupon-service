@@ -38,7 +38,7 @@ public class Coupon {
 
     private String code;
 
-    private Long serviceId;
+    private Integer serviceId;
 
     private String indexName;
 

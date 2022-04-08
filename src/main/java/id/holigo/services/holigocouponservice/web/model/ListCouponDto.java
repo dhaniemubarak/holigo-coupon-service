@@ -20,6 +20,10 @@ public class ListCouponDto implements Serializable {
 
     private String code;
 
+    private String name;
+
+    private String description;
+
     private BigDecimal minimumFare;
 
     private String imageUrl;

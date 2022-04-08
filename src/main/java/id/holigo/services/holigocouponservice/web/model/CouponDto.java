@@ -1,6 +1,7 @@
 package id.holigo.services.holigocouponservice.web.model;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.UUID;
@@ -26,11 +27,13 @@ public class CouponDto implements Serializable {
 
     private Boolean isAutoApplied;
 
+    private BigDecimal minimumFare;
+
     private Short quantity;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private Timestamp validAt;
-    
+
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private Timestamp expiredAt;
 

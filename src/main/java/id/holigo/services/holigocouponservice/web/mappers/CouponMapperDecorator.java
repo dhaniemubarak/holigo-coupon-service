@@ -52,6 +52,10 @@ public abstract class CouponMapperDecorator implements CouponMapper {
 
     @Override
     public ListCouponDto couponToListCouponDto(Coupon coupon) {
-        return couponMapper.couponToListCouponDto(coupon);
+        ListCouponDto listCouponDto = couponMapper.couponToListCouponDto(coupon);
+        listCouponDto.setName(messageSource.getMessage(coupon.getIndexName(), null, LocaleContextHolder.getLocale()));
+        listCouponDto.setDescription(
+                messageSource.getMessage(coupon.getIndexDescription(), null, LocaleContextHolder.getLocale()));
+        return listCouponDto;
     }
 }
