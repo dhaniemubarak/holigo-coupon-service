@@ -26,6 +26,10 @@ public class ListCouponDto implements Serializable {
 
     private BigDecimal minimumFare;
 
+    private String iconUrl;
+
+    private String category;
+
     private String imageUrl;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")

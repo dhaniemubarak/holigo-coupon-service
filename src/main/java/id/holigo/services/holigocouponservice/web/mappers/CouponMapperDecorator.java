@@ -41,6 +41,8 @@ public abstract class CouponMapperDecorator implements CouponMapper {
         CouponDto couponDto = couponMapper.couponToCouponDto(coupon);
         couponDto.setDescription(
                 messageSource.getMessage(coupon.getIndexDescription(), null, LocaleContextHolder.getLocale()));
+        couponDto.setCategory(
+                messageSource.getMessage(coupon.getIndexCategory(), null, LocaleContextHolder.getLocale()));
         couponDto.setName(messageSource.getMessage(coupon.getIndexName(), null, LocaleContextHolder.getLocale()));
         couponDto.setHowToUses(coupon.getHowToUses().stream().map(couponHtuMapper::couponHtuToCouponHtuDto)
                 .collect(Collectors.toList()));
@@ -56,6 +58,8 @@ public abstract class CouponMapperDecorator implements CouponMapper {
         listCouponDto.setName(messageSource.getMessage(coupon.getIndexName(), null, LocaleContextHolder.getLocale()));
         listCouponDto.setDescription(
                 messageSource.getMessage(coupon.getIndexDescription(), null, LocaleContextHolder.getLocale()));
+        listCouponDto.setCategory(
+                messageSource.getMessage(coupon.getIndexCategory(), null, LocaleContextHolder.getLocale()));
         return listCouponDto;
     }
 }

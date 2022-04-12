@@ -44,6 +44,10 @@ public class Coupon {
 
     private String indexDescription;
 
+    private String indexCategory;
+
+    private String iconUrl;
+
     @Column(nullable = true)
     private BigDecimal minimumFare;
 
