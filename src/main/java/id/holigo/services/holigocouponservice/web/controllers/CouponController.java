@@ -46,26 +46,24 @@ public class CouponController {
         if (isPublic != null && isPublic) {
             if (category != null && !category.isEmpty()) {
                 switch (category) {
-                    case "airlines":
+                    case "airlines" -> {
                         serviceIds.add(1);
-                        coupons = couponRepository.findAllByIsPublicAndIsShowAndServiceIdIn(isPublic, true, serviceIds);
-                        break;
-                    case "hotel":
+                        coupons = couponRepository.findAllByIsPublicAndIsShowAndServiceIdIn(true, true, serviceIds);
+                    }
+                    case "hotel" -> {
                         serviceIds.add(28);
-                        coupons = couponRepository.findAllByIsPublicAndIsShowAndServiceIdIn(isPublic, true, serviceIds);
-                        break;
-                    case "bill":
+                        coupons = couponRepository.findAllByIsPublicAndIsShowAndServiceIdIn(true, true, serviceIds);
+                    }
+                    case "bill" -> {
                         serviceIds.add(1);
                         serviceIds.add(28);
-                        coupons = couponRepository.findAllByIsPublicAndIsShowAndServiceIdNotIn(isPublic, true,
+                        coupons = couponRepository.findAllByIsPublicAndIsShowAndServiceIdNotIn(true, true,
                                 serviceIds);
-                        break;
-                    default:
-                        coupons = couponRepository.findAllByIsPublicAndIsShow(isPublic, true);
-                        break;
+                    }
+                    default -> coupons = couponRepository.findAllByIsPublicAndIsShow(true, true);
                 }
             } else {
-                coupons = couponRepository.findAllByIsPublicAndIsShow(isPublic, true);
+                coupons = couponRepository.findAllByIsPublicAndIsShow(true, true);
             }
         } else if (userId != null) {
             List<CouponUser> couponUsers = couponUserRepository.findAllByUserId(userId);

@@ -43,9 +43,19 @@ public class CouponDto implements Serializable {
 
     private String imageUrl;
 
+    private Boolean isActive;
+
+    private Boolean isAndroid;
+
+    private Boolean isIos;
+
+    private String shortTerms;
+
     private List<CouponHtuDto> howToUses;
 
     private List<CouponTacDto> termAndConditions;
 
     private String route;
+
+    private String label;
 }
