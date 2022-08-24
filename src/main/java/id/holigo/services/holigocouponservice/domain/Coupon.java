@@ -1,24 +1,21 @@
 package id.holigo.services.holigocouponservice.domain;
 
+import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.util.List;
+import java.util.UUID;
+
+import javax.persistence.*;
+
 import id.holigo.services.common.UserGroupEnum;
 import lombok.*;
-import org.hibernate.Hibernate;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import javax.persistence.*;
-import java.math.BigDecimal;
-import java.sql.Timestamp;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
-
 @Getter
 @Setter
-@ToString
-@RequiredArgsConstructor
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -79,11 +76,9 @@ public class Coupon {
     private String ruleValue;
 
     @OneToMany(mappedBy = "coupon", fetch = FetchType.LAZY)
-    @ToString.Exclude
     private List<CouponHtu> howToUses;
 
     @OneToMany(mappedBy = "coupon")
-    @ToString.Exclude
     private List<CouponTac> termAndConditions;
 
     @CreationTimestamp
@@ -98,17 +93,4 @@ public class Coupon {
     private String route;
 
     private String indexLabel;
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        Coupon coupon = (Coupon) o;
-        return id != null && Objects.equals(id, coupon.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return getClass().hashCode();
-    }
 }
