@@ -36,6 +36,8 @@ public class Coupon {
 
     private Integer serviceId;
 
+    private Integer productId;
+
     private String indexName;
 
     private String indexDescription;
@@ -65,6 +67,18 @@ public class Coupon {
     private Boolean isAndroid;
 
     private Boolean isIos;
+
+    private Boolean isFreeAdmin;
+
+    private Boolean isFreeServiceFee;
+
+    private Boolean isPercent;
+
+    private Boolean isOfficialAccount;
+
+    private BigDecimal couponValue;
+
+    private BigDecimal maximumCouponValue;
 
     private String indexShortTerms;
 
