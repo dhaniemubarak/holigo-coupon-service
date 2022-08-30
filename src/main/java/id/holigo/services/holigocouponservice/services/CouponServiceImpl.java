@@ -2,23 +2,29 @@ package id.holigo.services.holigocouponservice.services;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import id.holigo.services.common.TransactionDtoForUser;
+import id.holigo.services.common.UserDto;
 import id.holigo.services.holigocouponservice.component.HotelCouponValidation;
 import id.holigo.services.holigocouponservice.domain.Coupon;
 import id.holigo.services.holigocouponservice.domain.CouponUser;
 import id.holigo.services.holigocouponservice.repositories.CouponRepository;
 import id.holigo.services.holigocouponservice.repositories.CouponUserRepository;
 import id.holigo.services.holigocouponservice.services.transaction.TransactionService;
+import id.holigo.services.holigocouponservice.services.user.UserService;
 import id.holigo.services.holigocouponservice.web.model.ApplyCouponDto;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
+
 import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 
-@Slf4j
 @Service
 public class CouponServiceImpl implements CouponService {
 
@@ -30,6 +36,13 @@ public class CouponServiceImpl implements CouponService {
     private CouponUserRepository couponUserRepository;
 
     private MessageSource messageSource;
+
+    private UserService userService;
+
+    @Autowired
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
 
     @Autowired
     public void setHotelCouponValidation(HotelCouponValidation hotelCouponValidation) {
@@ -67,11 +80,27 @@ public class CouponServiceImpl implements CouponService {
             return applyCouponDto;
         }
         Coupon coupon = fetchCoupon.get();
+        if (!coupon.getIsActive()) {
+            applyCouponDto.setMessage(messageSource.getMessage("applyCoupon.invalid", null, LocaleContextHolder.getLocale()));
+            return applyCouponDto;
+        }
         if (coupon.getQuantity() != null)
             if (coupon.getQuantity() <= 0) {
                 applyCouponDto.setMessage(messageSource.getMessage("applyCoupon.couponQuantityLimit", null, LocaleContextHolder.getLocale()));
                 return applyCouponDto;
             }
+        Timestamp now = Timestamp.valueOf(LocalDateTime.now());
+        // valid at
+        if (coupon.getValidAt() != null) {
+            if (now.before(coupon.getValidAt())) {
+                Date date = new Date();
+                date.setTime(coupon.getValidAt().getTime());
+                String formattedDate = new SimpleDateFormat("dd MMM yyyy").format(date);
+                Object[] obj = new Object[]{formattedDate};
+                applyCouponDto.setMessage(messageSource.getMessage("applyCoupon.validLimit", obj, LocaleContextHolder.getLocale()));
+                return applyCouponDto;
+            }
+        }
         if (!coupon.getIsPublic()) {
             Optional<CouponUser> fetchCouponUser = couponUserRepository.findByUserIdAndCouponId(userId, coupon.getId());
             if (fetchCouponUser.isEmpty()) {
@@ -84,7 +113,32 @@ public class CouponServiceImpl implements CouponService {
                     applyCouponDto.setMessage(messageSource.getMessage("applyCoupon.couponQuantityLimit", null, LocaleContextHolder.getLocale()));
                     return applyCouponDto;
                 }
+            if (couponUser.getExpiredAt() != null)
+                if (now.after(couponUser.getExpiredAt())) {
+                    applyCouponDto.setMessage(messageSource.getMessage("applyCoupon.couponTimeLimit", null, LocaleContextHolder.getLocale()));
+                    return applyCouponDto;
+                }
+        } else {
+            if (coupon.getExpiredAt() != null)
+                if (now.after(coupon.getExpiredAt())) {
+                    applyCouponDto.setMessage(messageSource.getMessage("applyCoupon.couponTimeLimit", null, LocaleContextHolder.getLocale()));
+                    return applyCouponDto;
+                }
         }
+        UserDto user = userService.getUser(userId);
+        if (coupon.getUserGroup() != null)
+            if (!coupon.getUserGroup().equals(user.getUserGroup())) {
+                Object[] obj = new Object[]{coupon.getUserGroup()};
+                applyCouponDto.setMessage(messageSource.getMessage("applyCoupon.userGroupLimit", obj, LocaleContextHolder.getLocale()));
+                return applyCouponDto;
+            }
+
+        if (coupon.getIsOfficialAccount())
+            if (!user.getIsOfficialAccount()) {
+                applyCouponDto.setMessage(messageSource.getMessage("applyCoupon.officialAccountLimit", null, LocaleContextHolder.getLocale()));
+                return applyCouponDto;
+            }
+
         applyCouponDto.setIsFreeAdmin(coupon.getIsFreeAdmin());
         applyCouponDto.setIsFreeServiceFee(coupon.getIsFreeServiceFee());
         TransactionDtoForUser transactionDtoForUser = transactionService.getDetailTransaction(transactionId);
@@ -102,16 +156,25 @@ public class CouponServiceImpl implements CouponService {
                 return applyCouponDto;
             }
 
-        try {
-            hotelCouponValidation.validateTheCoupon(coupon, transactionDtoForUser);
-        } catch (JsonProcessingException e) {
-            return applyCouponDto;
+        if (coupon.getMinimumFare() != null)
+            if (coupon.getMinimumFare().compareTo(transactionDtoForUser.getFareAmount()) > 0) {
+                Object[] args = new Object[]{NumberFormat.getNumberInstance().format(coupon.getMinimumFare())};
+                applyCouponDto.setMessage(messageSource.getMessage("applyCoupon.fareMinimumLimit", args, LocaleContextHolder.getLocale()));
+                return applyCouponDto;
+            }
+        if (coupon.getRuleType() != null) {
+            try {
+                switch (coupon.getRuleType()) {
+                    case "hotel" -> hotelCouponValidation.validateTheCoupon(coupon, transactionDtoForUser);
+                }
+                if (!hotelCouponValidation.isValid()) {
+                    applyCouponDto.setMessage(hotelCouponValidation.getMessage());
+                    return applyCouponDto;
+                }
+            } catch (JsonProcessingException e) {
+                return applyCouponDto;
+            }
         }
-        if (!hotelCouponValidation.isValid()) {
-            applyCouponDto.setMessage(hotelCouponValidation.getMessage());
-            return applyCouponDto;
-        }
-
         if (coupon.getIsPercent() != null) {
             if (coupon.getIsPercent()) {
                 discountValue = transactionDtoForUser.getFareAmount().multiply(coupon.getCouponValue());
