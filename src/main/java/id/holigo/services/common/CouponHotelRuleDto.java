@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.sql.Date;
 
 @Getter
 @Setter
@@ -19,6 +20,8 @@ public class CouponHotelRuleDto implements Serializable {
     private Double maximumStarRating;
     private BigDecimal minimumPrice;
     private BigDecimal maximumPrice;
+    private Date checkinPeriod;
+    private Date checkoutPeriod;
     private Boolean isPercent;
     private BigDecimal value;
     private BigDecimal maximumValue;
