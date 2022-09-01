@@ -13,6 +13,8 @@ import java.util.UUID;
 @Builder
 public class ApplyCouponDto implements Serializable {
 
+    private UUID id;
+
     private Boolean isValid;
 
     private Boolean isFreeAdmin;

@@ -9,7 +9,6 @@ import org.mapstruct.Mapping;
 public interface ApplyCouponMapper {
 
     @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "coupon", ignore = true)
     ApplyCoupon applyCouponDtoToApplyCoupon(ApplyCouponDto applyCouponDto);
