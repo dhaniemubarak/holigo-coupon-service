@@ -55,7 +55,6 @@ public class CouponController {
                         coupons = couponRepository.findAllByIsPublicAndIsShowAndServiceIdIn(true, true, serviceIds);
                     }
                     case "bill" -> {
-                        serviceIds.add(1);
                         serviceIds.add(28);
                         coupons = couponRepository.findAllByIsPublicAndIsShowAndServiceIdNotIn(true, true,
                                 serviceIds);
