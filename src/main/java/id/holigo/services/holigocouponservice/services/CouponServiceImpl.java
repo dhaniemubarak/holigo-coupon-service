@@ -235,7 +235,7 @@ public class CouponServiceImpl implements CouponService {
                     throw new CouponNotFoundException(messageSource.getMessage("applyCoupon.invalid", null, LocaleContextHolder.getLocale())
                             , null, false, false);
                 }
-            couponUser.setQuantity(coupon.getQuantity() - 1);
+            couponUser.setQuantity(couponUser.getQuantity() - 1);
             couponUserRepository.save(couponUser);
         } else {
             if (coupon.getQuantity() != null) {

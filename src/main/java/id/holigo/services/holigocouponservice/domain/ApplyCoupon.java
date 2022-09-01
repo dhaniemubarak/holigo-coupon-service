@@ -35,6 +35,8 @@ public class ApplyCoupon {
 
     private Long userId;
 
+    @Column(length = 36, columnDefinition = "varchar(36)", updatable = false, nullable = false)
+    @Type(type = "org.hibernate.type.UUIDCharType")
     private UUID transactionId;
 
     private String paymentServiceId;
