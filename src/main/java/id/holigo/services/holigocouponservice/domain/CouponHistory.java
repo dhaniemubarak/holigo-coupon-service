@@ -11,17 +11,14 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -35,9 +32,7 @@ public class CouponHistory {
     @Type(type = "org.hibernate.type.UUIDCharType")
     private UUID id;
 
-    @OneToOne
     @ManyToOne
-    @JoinColumn(name = "coupon_id")
     private Coupon coupon;
 
     private Long userid;

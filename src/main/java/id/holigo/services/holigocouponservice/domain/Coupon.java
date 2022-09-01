@@ -52,7 +52,7 @@ public class Coupon {
 
     private Boolean isPublic;
 
-    private Short quantity;
+    private Integer quantity;
 
     private Timestamp validAt;
 

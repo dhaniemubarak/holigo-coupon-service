@@ -4,6 +4,7 @@ import lombok.*;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -19,6 +20,14 @@ public class ApplyCouponDto implements Serializable {
     private Boolean isFreeServiceFee;
 
     private BigDecimal discountAmount;
+
+    private String couponCode;
+
+    private Long userId;
+
+    private UUID transactionId;
+
+    private String paymentServiceId;
 
     private String message;
 }

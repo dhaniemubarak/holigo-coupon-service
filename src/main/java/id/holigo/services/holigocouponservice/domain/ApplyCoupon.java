@@ -33,10 +33,11 @@ public class ApplyCoupon {
     @ManyToOne
     private Coupon coupon;
 
-
     private Long userId;
 
     private UUID transactionId;
+
+    private String paymentServiceId;
 
     private Boolean isValid;
 

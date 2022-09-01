@@ -5,10 +5,7 @@ import id.holigo.services.common.model.ApplyCouponDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
@@ -30,5 +27,8 @@ public class ApplyCouponController {
         return new ResponseEntity<>(couponService.getDiscountAmount(transactionId, couponCode, paymentServiceId, userId), HttpStatus.OK);
     }
 
-
+    @PostMapping("/api/v1/applyCoupon")
+    public ResponseEntity<ApplyCouponDto> createApplyCoupon(@RequestBody ApplyCouponDto applyCouponDto) {
+        return new ResponseEntity<>(couponService.createApplyCoupon(applyCouponDto), HttpStatus.CREATED);
+    }
 }

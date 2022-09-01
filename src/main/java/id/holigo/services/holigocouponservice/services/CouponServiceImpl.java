@@ -4,17 +4,22 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import id.holigo.services.common.model.TransactionDtoForUser;
 import id.holigo.services.common.model.UserDto;
 import id.holigo.services.holigocouponservice.component.HotelCouponValidation;
+import id.holigo.services.holigocouponservice.domain.ApplyCoupon;
 import id.holigo.services.holigocouponservice.domain.Coupon;
 import id.holigo.services.holigocouponservice.domain.CouponUser;
+import id.holigo.services.holigocouponservice.repositories.ApplyCouponRepository;
 import id.holigo.services.holigocouponservice.repositories.CouponRepository;
 import id.holigo.services.holigocouponservice.repositories.CouponUserRepository;
 import id.holigo.services.holigocouponservice.services.transaction.TransactionService;
 import id.holigo.services.holigocouponservice.services.user.UserService;
 import id.holigo.services.common.model.ApplyCouponDto;
+import id.holigo.services.holigocouponservice.web.exceptions.CouponNotFoundException;
+import id.holigo.services.holigocouponservice.web.mappers.ApplyCouponMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -29,6 +34,10 @@ import java.util.UUID;
 public class CouponServiceImpl implements CouponService {
 
     private HotelCouponValidation hotelCouponValidation;
+
+    private ApplyCouponRepository applyCouponRepository;
+
+    private ApplyCouponMapper applyCouponMapper;
     private TransactionService transactionService;
 
     private CouponRepository couponRepository;
@@ -38,6 +47,16 @@ public class CouponServiceImpl implements CouponService {
     private MessageSource messageSource;
 
     private UserService userService;
+
+    @Autowired
+    public void setApplyCouponMapper(ApplyCouponMapper applyCouponMapper) {
+        this.applyCouponMapper = applyCouponMapper;
+    }
+
+    @Autowired
+    public void setApplyCouponRepository(ApplyCouponRepository applyCouponRepository) {
+        this.applyCouponRepository = applyCouponRepository;
+    }
 
     @Autowired
     public void setUserService(UserService userService) {
@@ -185,6 +204,46 @@ public class CouponServiceImpl implements CouponService {
         applyCouponDto.setIsValid(true);
         applyCouponDto.setDiscountAmount(discountValue);
         return applyCouponDto;
+    }
+
+    @Transactional
+    @Override
+    public ApplyCouponDto createApplyCoupon(ApplyCouponDto applyCouponDto) {
+        ApplyCoupon applyCoupon = applyCouponMapper.applyCouponDtoToApplyCoupon(applyCouponDto);
+        Optional<Coupon> fetchCoupon = couponRepository.findByCode(applyCoupon.getCouponCode());
+        if (fetchCoupon.isEmpty()) {
+            throw new CouponNotFoundException(messageSource.getMessage("applyCoupon.invalid", null, LocaleContextHolder.getLocale())
+                    , null, false, false);
+        }
+        Coupon coupon = fetchCoupon.get();
+        applyCoupon.setCoupon(coupon);
+        if (!coupon.getIsPublic()) {
+            Optional<CouponUser> fetchCouponUser = couponUserRepository.findByUserIdAndCouponId(applyCoupon.getUserId(), coupon.getId());
+            if (fetchCouponUser.isEmpty()) {
+                throw new CouponNotFoundException(messageSource.getMessage("applyCoupon.invalid", null, LocaleContextHolder.getLocale())
+                        , null, false, false);
+            }
+            Timestamp now = Timestamp.valueOf(LocalDateTime.now());
+            CouponUser couponUser = fetchCouponUser.get();
+            if (couponUser.getQuantity() != null)
+                if (couponUser.getQuantity() <= 0) {
+                    throw new CouponNotFoundException(messageSource.getMessage("applyCoupon.invalid", null, LocaleContextHolder.getLocale())
+                            , null, false, false);
+                }
+            if (couponUser.getExpiredAt() != null)
+                if (now.after(couponUser.getExpiredAt())) {
+                    throw new CouponNotFoundException(messageSource.getMessage("applyCoupon.invalid", null, LocaleContextHolder.getLocale())
+                            , null, false, false);
+                }
+            couponUser.setQuantity(coupon.getQuantity() - 1);
+            couponUserRepository.save(couponUser);
+        } else {
+            if (coupon.getQuantity() != null) {
+                coupon.setQuantity(coupon.getQuantity() - 1);
+                couponRepository.save(coupon);
+            }
+        }
+        return applyCouponMapper.applyCouponToApplyCouponDto(applyCouponRepository.save(applyCoupon));
     }
 
     private String getService(Integer serviceId) {
