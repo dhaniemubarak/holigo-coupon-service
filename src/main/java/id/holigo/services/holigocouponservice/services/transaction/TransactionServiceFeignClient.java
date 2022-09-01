@@ -1,6 +1,6 @@
 package id.holigo.services.holigocouponservice.services.transaction;
 
-import id.holigo.services.common.TransactionDtoForUser;
+import id.holigo.services.common.model.TransactionDtoForUser;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;

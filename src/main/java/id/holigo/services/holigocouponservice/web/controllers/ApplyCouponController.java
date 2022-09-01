@@ -1,7 +1,7 @@
 package id.holigo.services.holigocouponservice.web.controllers;
 
 import id.holigo.services.holigocouponservice.services.CouponService;
-import id.holigo.services.holigocouponservice.web.model.ApplyCouponDto;
+import id.holigo.services.common.model.ApplyCouponDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

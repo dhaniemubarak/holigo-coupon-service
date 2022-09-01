@@ -1,6 +1,6 @@
 package id.holigo.services.holigocouponservice.domain;
 
-import id.holigo.services.common.UserGroupEnum;
+import id.holigo.services.common.model.UserGroupEnum;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;

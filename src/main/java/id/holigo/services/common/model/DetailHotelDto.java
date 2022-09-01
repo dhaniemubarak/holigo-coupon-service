@@ -1,4 +1,4 @@
-package id.holigo.services.common;
+package id.holigo.services.common.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;

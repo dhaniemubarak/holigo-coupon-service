@@ -1,8 +1,8 @@
 package id.holigo.services.holigocouponservice.services;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import id.holigo.services.common.TransactionDtoForUser;
-import id.holigo.services.common.UserDto;
+import id.holigo.services.common.model.TransactionDtoForUser;
+import id.holigo.services.common.model.UserDto;
 import id.holigo.services.holigocouponservice.component.HotelCouponValidation;
 import id.holigo.services.holigocouponservice.domain.Coupon;
 import id.holigo.services.holigocouponservice.domain.CouponUser;
@@ -10,7 +10,7 @@ import id.holigo.services.holigocouponservice.repositories.CouponRepository;
 import id.holigo.services.holigocouponservice.repositories.CouponUserRepository;
 import id.holigo.services.holigocouponservice.services.transaction.TransactionService;
 import id.holigo.services.holigocouponservice.services.user.UserService;
-import id.holigo.services.holigocouponservice.web.model.ApplyCouponDto;
+import id.holigo.services.common.model.ApplyCouponDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;

@@ -1,4 +1,4 @@
-package id.holigo.services.common;
+package id.holigo.services.common.model;
 
 public enum OrderStatusEnum {
     PROCESS_BOOK, BOOKED, BOOK_FAILED, PROCESS_ISSUED, WAITING_ISSUED, ISSUED, RETRYING_ISSUED, ISSUED_FAILED,

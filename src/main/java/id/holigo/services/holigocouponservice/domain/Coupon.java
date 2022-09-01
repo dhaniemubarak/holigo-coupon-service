@@ -7,7 +7,7 @@ import java.util.UUID;
 
 import javax.persistence.*;
 
-import id.holigo.services.common.UserGroupEnum;
+import id.holigo.services.common.model.UserGroupEnum;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;

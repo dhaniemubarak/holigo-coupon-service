@@ -1,6 +1,6 @@
 package id.holigo.services.holigocouponservice.services;
 
-import id.holigo.services.holigocouponservice.web.model.ApplyCouponDto;
+import id.holigo.services.common.model.ApplyCouponDto;
 
 import java.util.UUID;
 

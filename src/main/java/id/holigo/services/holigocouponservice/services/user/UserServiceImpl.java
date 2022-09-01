@@ -1,6 +1,6 @@
 package id.holigo.services.holigocouponservice.services.user;
 
-import id.holigo.services.common.UserDto;
+import id.holigo.services.common.model.UserDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;

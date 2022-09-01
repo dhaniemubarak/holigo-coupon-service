@@ -2,9 +2,9 @@ package id.holigo.services.holigocouponservice.component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import id.holigo.services.common.CouponHotelRuleDto;
-import id.holigo.services.common.DetailHotelDto;
-import id.holigo.services.common.TransactionDtoForUser;
+import id.holigo.services.common.model.CouponHotelRuleDto;
+import id.holigo.services.common.model.DetailHotelDto;
+import id.holigo.services.common.model.TransactionDtoForUser;
 import id.holigo.services.holigocouponservice.domain.Coupon;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,10 +12,8 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 
-import java.sql.Timestamp;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
 import java.util.Date;
 
 @Component
