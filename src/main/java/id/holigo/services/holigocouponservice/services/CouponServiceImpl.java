@@ -93,7 +93,11 @@ public class CouponServiceImpl implements CouponService {
 
         BigDecimal discountValue = new BigDecimal(0);
         ApplyCouponDto applyCouponDto = ApplyCouponDto.builder().isValid(false).isFreeAdmin(false).isFreeServiceFee(false)
-                .discountAmount(BigDecimal.valueOf(0.00)).build();
+                .discountAmount(BigDecimal.valueOf(0.00))
+                .couponCode(couponCode)
+                .transactionId(transactionId)
+                .paymentServiceId(paymentServiceId)
+                .userId(userId).build();
         Optional<Coupon> fetchCoupon = couponRepository.findByCode(couponCode);
         if (fetchCoupon.isEmpty()) {
             return applyCouponDto;
