@@ -57,5 +57,7 @@ public class CouponDto implements Serializable {
 
     private String route;
 
+    private String ruleType;
+
     private String label;
 }
