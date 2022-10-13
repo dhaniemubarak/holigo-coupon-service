@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.Timestamp;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
@@ -90,8 +91,6 @@ public class CouponServiceImpl implements CouponService {
 
     @Override
     public ApplyCouponDto getDiscountAmount(UUID transactionId, String couponCode, String paymentServiceId, Long userId) {
-
-        BigDecimal discountValue = new BigDecimal(0);
         ApplyCouponDto applyCouponDto = ApplyCouponDto.builder().isValid(false).isFreeAdmin(false).isFreeServiceFee(false)
                 .discountAmount(BigDecimal.valueOf(0.00))
                 .couponCode(couponCode)
@@ -149,6 +148,11 @@ public class CouponServiceImpl implements CouponService {
                 }
         }
         UserDto user = userService.getUser(userId);
+        if (coupon.getIsLogin())
+            if (user.getType().equals("GUEST")) {
+                applyCouponDto.setMessage(messageSource.getMessage("applyCoupon.loginRequired", null, LocaleContextHolder.getLocale()));
+                return applyCouponDto;
+            }
         if (coupon.getUserGroup() != null)
             if (!coupon.getUserGroup().equals(user.getUserGroup())) {
                 Object[] obj = new Object[]{coupon.getUserGroup()};
@@ -178,7 +182,6 @@ public class CouponServiceImpl implements CouponService {
                 applyCouponDto.setMessage(messageSource.getMessage("applyCoupon.serviceLimit", args, LocaleContextHolder.getLocale()));
                 return applyCouponDto;
             }
-
         if (coupon.getMinimumFare() != null)
             if (coupon.getMinimumFare().compareTo(transactionDtoForUser.getFareAmount()) > 0) {
                 Object[] args = new Object[]{NumberFormat.getNumberInstance().format(coupon.getMinimumFare())};
@@ -188,25 +191,29 @@ public class CouponServiceImpl implements CouponService {
         if (coupon.getRuleType() != null) {
             try {
                 switch (coupon.getRuleType()) {
-                    case "hotel" -> hotelCouponValidation.validateTheCoupon(coupon, transactionDtoForUser);
+                    case "hotel" -> {
+                        hotelCouponValidation.validateTheCoupon(coupon, transactionDtoForUser);
+                        if (!hotelCouponValidation.isValid()) {
+                            applyCouponDto.setMessage(hotelCouponValidation.getMessage());
+                            return applyCouponDto;
+                        }
+                    }
                 }
-                if (!hotelCouponValidation.isValid()) {
-                    applyCouponDto.setMessage(hotelCouponValidation.getMessage());
-                    return applyCouponDto;
-                }
+
             } catch (JsonProcessingException e) {
                 return applyCouponDto;
             }
         }
         if (coupon.getIsPercent() != null) {
             if (coupon.getIsPercent()) {
-                discountValue = transactionDtoForUser.getFareAmount().multiply(coupon.getCouponValue());
+                applyCouponDto.setDiscountAmount(transactionDtoForUser.getFareAmount().multiply(coupon.getCouponValue()));
             } else {
-                discountValue = coupon.getCouponValue();
+                applyCouponDto.setDiscountAmount(applyCouponDto.getDiscountAmount().add(coupon.getCouponValue()));
+                if (applyCouponDto.getIsFreeAdmin())
+                    applyCouponDto.setDiscountAmount(applyCouponDto.getDiscountAmount().add(transactionDtoForUser.getAdminAmount()));
             }
         }
         applyCouponDto.setIsValid(true);
-        applyCouponDto.setDiscountAmount(discountValue);
         return applyCouponDto;
     }
 

@@ -68,6 +68,8 @@ public class Coupon {
 
     private Boolean isIos;
 
+    private Boolean isLogin;
+
     private Boolean isFreeAdmin;
 
     private Boolean isFreeServiceFee;

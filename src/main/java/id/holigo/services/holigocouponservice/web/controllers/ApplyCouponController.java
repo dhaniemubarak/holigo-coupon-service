@@ -22,7 +22,7 @@ public class ApplyCouponController {
     @GetMapping("/api/v1/applyCoupon")
     public ResponseEntity<ApplyCouponDto> getDiscountAmount(@RequestParam("transactionId") UUID transactionId,
                                                             @RequestParam("couponCode") String couponCode,
-                                                            @RequestParam("paymentServiceId") String paymentServiceId,
+                                                            @RequestParam(name = "paymentServiceId", required = false) String paymentServiceId,
                                                             @RequestHeader("user-id") Long userId) {
         return new ResponseEntity<>(couponService.getDiscountAmount(transactionId, couponCode, paymentServiceId, userId), HttpStatus.OK);
     }
