@@ -15,6 +15,9 @@ import id.holigo.services.holigocouponservice.services.user.UserService;
 import id.holigo.services.common.model.ApplyCouponDto;
 import id.holigo.services.holigocouponservice.web.exceptions.CouponNotFoundException;
 import id.holigo.services.holigocouponservice.web.mappers.ApplyCouponMapper;
+import id.holigo.services.holigocouponservice.web.mappers.CouponMapper;
+import id.holigo.services.holigocouponservice.web.model.CouponDto;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -22,15 +25,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.sql.Timestamp;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
+@Slf4j
 @Service
 public class CouponServiceImpl implements CouponService {
 
@@ -48,6 +49,13 @@ public class CouponServiceImpl implements CouponService {
     private MessageSource messageSource;
 
     private UserService userService;
+
+    private CouponMapper couponMapper;
+
+    @Autowired
+    public void setCouponMapper(CouponMapper couponMapper) {
+        this.couponMapper = couponMapper;
+    }
 
     @Autowired
     public void setApplyCouponMapper(ApplyCouponMapper applyCouponMapper) {
@@ -141,6 +149,23 @@ public class CouponServiceImpl implements CouponService {
                     return applyCouponDto;
                 }
         } else {
+            if (coupon.getUserVoucherLimit() != null) {
+                Calendar calendar = Calendar.getInstance();
+                calendar.set(Calendar.HOUR_OF_DAY, 0);
+                calendar.set(Calendar.MINUTE, 0);
+                calendar.set(Calendar.SECOND, 0);
+                calendar.set(Calendar.MILLISECOND, 0);
+                Timestamp startTime = Timestamp.from(calendar.toInstant());
+                calendar.set(Calendar.HOUR_OF_DAY, 23);
+                calendar.set(Calendar.MINUTE, 59);
+                calendar.set(Calendar.SECOND, 59);
+                Timestamp endTime = Timestamp.from(calendar.toInstant());
+                List<ApplyCoupon> applyCouponList = applyCouponRepository.findAllByUserIdAndCouponCodeAndCreatedAtIsBetween(userId, couponCode, startTime, endTime);
+                if (applyCouponList.size() >= coupon.getUserVoucherLimit()) {
+                    applyCouponDto.setMessage(messageSource.getMessage("applyCoupon.couponUserLimitPerDay", null, LocaleContextHolder.getLocale()));
+                    return applyCouponDto;
+                }
+            }
             if (coupon.getExpiredAt() != null)
                 if (now.after(coupon.getExpiredAt())) {
                     applyCouponDto.setMessage(messageSource.getMessage("applyCoupon.couponTimeLimit", null, LocaleContextHolder.getLocale()));
@@ -171,14 +196,14 @@ public class CouponServiceImpl implements CouponService {
         TransactionDtoForUser transactionDtoForUser = transactionService.getDetailTransaction(transactionId);
         if (coupon.getServiceId() != null)
             if (!transactionDtoForUser.getServiceId().equals(coupon.getServiceId())) {
-                Object[] args = new Object[]{getService(coupon.getServiceId())};
+                Object[] args = new Object[]{getService(coupon.getServiceId(), couponMapper.couponToCouponDto(coupon))};
                 applyCouponDto.setMessage(messageSource.getMessage("applyCoupon.serviceLimit", args, LocaleContextHolder.getLocale()));
                 return applyCouponDto;
             }
 
         if (coupon.getProductId() != null)
             if (!transactionDtoForUser.getProductId().equals(coupon.getProductId())) {
-                Object[] args = new Object[]{getService(coupon.getServiceId())};
+                Object[] args = new Object[]{getService(coupon.getServiceId(), couponMapper.couponToCouponDto(coupon))};
                 applyCouponDto.setMessage(messageSource.getMessage("applyCoupon.serviceLimit", args, LocaleContextHolder.getLocale()));
                 return applyCouponDto;
             }
@@ -190,13 +215,11 @@ public class CouponServiceImpl implements CouponService {
             }
         if (coupon.getRuleType() != null) {
             try {
-                switch (coupon.getRuleType()) {
-                    case "hotel" -> {
-                        hotelCouponValidation.validateTheCoupon(coupon, transactionDtoForUser);
-                        if (!hotelCouponValidation.isValid()) {
-                            applyCouponDto.setMessage(hotelCouponValidation.getMessage());
-                            return applyCouponDto;
-                        }
+                if ("hotel".equals(coupon.getRuleType())) {
+                    hotelCouponValidation.validateTheCoupon(coupon, transactionDtoForUser);
+                    if (!hotelCouponValidation.isValid()) {
+                        applyCouponDto.setMessage(hotelCouponValidation.getMessage());
+                        return applyCouponDto;
                     }
                 }
 
@@ -257,12 +280,13 @@ public class CouponServiceImpl implements CouponService {
         return applyCouponMapper.applyCouponToApplyCouponDto(applyCouponRepository.save(applyCoupon));
     }
 
-    private String getService(Integer serviceId) {
+    private String getService(Integer serviceId, CouponDto couponDto) {
 
-        String service = "";
+        String service;
         switch (serviceId) {
             case 28 -> service = "hotel";
-            case 1 -> service = "Maskapai";
+            case 1 -> service = "maskapai";
+            default -> service = couponDto.getName().toLowerCase();
         }
         return service;
 

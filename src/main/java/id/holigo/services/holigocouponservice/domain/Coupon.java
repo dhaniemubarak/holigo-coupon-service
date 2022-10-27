@@ -84,7 +84,7 @@ public class Coupon {
 
     private String indexShortTerms;
 
-    private Byte userVoucherLimit;
+    private Integer userVoucherLimit;
 
     private String ruleType;
 
