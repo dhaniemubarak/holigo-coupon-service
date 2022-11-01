@@ -5,8 +5,7 @@ import id.holigo.services.holigocouponservice.domain.CouponUser;
 import id.holigo.services.holigocouponservice.repositories.CouponRepository;
 import id.holigo.services.holigocouponservice.repositories.CouponUserRepository;
 import id.holigo.services.holigocouponservice.web.mappers.CouponUserMapper;
-import id.holigo.services.holigocouponservice.web.model.CouponUserDto;
-import lombok.extern.slf4j.Slf4j;
+import id.holigo.services.common.model.CouponUserDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -89,11 +87,10 @@ public class CouponUserController {
             couponUserRepository.save(couponUser);
         } else if (couponUsers.size() == 1) {
             couponUsers.forEach(couponUser -> {
-                LocalDateTime localDateTime = couponUser.getExpiredAt().toLocalDateTime().plusMonths(3L);
-                Timestamp expiredAt = Timestamp.valueOf(localDateTime);
+                LocalDateTime localDateTime = LocalDateTime.now().plusMonths(3L);
                 couponUser.setCoupon(coupon);
                 couponUser.setQuantity(couponUser.getQuantity() + couponUserDto.getQuantity());
-                couponUser.setExpiredAt(expiredAt);
+                couponUser.setExpiredAt(Timestamp.valueOf(localDateTime));
                 couponUserRepository.save(couponUser);
             });
         }
