@@ -35,5 +35,7 @@ public class ListCouponDto implements Serializable {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private Timestamp expiredAt;
 
+    private Integer quantity;
+
     private String route;
 }

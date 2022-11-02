@@ -2,6 +2,7 @@ package id.holigo.services.holigocouponservice.web.controllers;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -68,6 +69,10 @@ public class CouponController {
             List<CouponUser> couponUsers = couponUserRepository.findAllByUserId(userId);
             if (couponUsers.size() > 0) {
                 couponUsers.forEach(action -> {
+                    Coupon coupon = action.getCoupon();
+                    coupon.setQuantity(action.getQuantity());
+                    coupon.setExpiredAt(action.getExpiredAt());
+                    action.setCoupon(coupon);
                     if (category != null && !category.isEmpty()) {
                         switch (category) {
                             case "airlines":
@@ -101,8 +106,16 @@ public class CouponController {
     }
 
     @GetMapping("api/v1/coupons/{id}")
-    public ResponseEntity<CouponDto> getDetailCoupon(@PathVariable("id") UUID id) {
+    public ResponseEntity<CouponDto> getDetailCoupon(@PathVariable("id") UUID id, @RequestHeader(name = "User-Id", required = false) Long userId) {
         Coupon coupon = couponRepository.getById(id);
+        if (!coupon.getIsPublic()) {
+            Optional<CouponUser> fetchCouponUser = couponUserRepository.findByUserIdAndCouponId(userId, id);
+            if (fetchCouponUser.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+            coupon.setQuantity(fetchCouponUser.get().getQuantity());
+            coupon.setExpiredAt(fetchCouponUser.get().getExpiredAt());
+        }
         return new ResponseEntity<>(couponMapper.couponToCouponDto(coupon), HttpStatus.OK);
     }
 }
