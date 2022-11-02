@@ -25,15 +25,24 @@ import id.holigo.services.holigocouponservice.web.model.ListCouponDto;
 
 @RestController
 public class CouponController {
-
-    @Autowired
     private CouponRepository couponRepository;
-
-    @Autowired
     private CouponUserRepository couponUserRepository;
+    private CouponMapper couponMapper;
 
     @Autowired
-    private CouponMapper couponMapper;
+    public void setCouponMapper(CouponMapper couponMapper) {
+        this.couponMapper = couponMapper;
+    }
+
+    @Autowired
+    public void setCouponRepository(CouponRepository couponRepository) {
+        this.couponRepository = couponRepository;
+    }
+
+    @Autowired
+    public void setCouponUserRepository(CouponUserRepository couponUserRepository) {
+        this.couponUserRepository = couponUserRepository;
+    }
 
     List<Coupon> coupons;
 
@@ -115,6 +124,7 @@ public class CouponController {
             }
             coupon.setQuantity(fetchCouponUser.get().getQuantity());
             coupon.setExpiredAt(fetchCouponUser.get().getExpiredAt());
+            coupon.setValidAt(fetchCouponUser.get().getCreatedAt());
         }
         return new ResponseEntity<>(couponMapper.couponToCouponDto(coupon), HttpStatus.OK);
     }
