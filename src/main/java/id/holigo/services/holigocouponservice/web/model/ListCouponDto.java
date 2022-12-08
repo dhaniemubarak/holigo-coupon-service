@@ -38,4 +38,8 @@ public class ListCouponDto implements Serializable {
     private Integer quantity;
 
     private String route;
+
+    private Integer serviceId;
+
+    private Integer productId;
 }
