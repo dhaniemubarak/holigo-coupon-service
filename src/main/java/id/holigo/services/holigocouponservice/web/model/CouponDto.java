@@ -29,6 +29,10 @@ public class CouponDto implements Serializable {
 
     private String category;
 
+    private Integer serviceId;
+
+    private Integer productId;
+
     private Boolean isAutoApplied;
 
     private BigDecimal minimumFare;
