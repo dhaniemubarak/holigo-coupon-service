@@ -46,4 +46,7 @@ public class CouponUser {
 
     @UpdateTimestamp
     private Timestamp updatedAt;
+
+    @UpdateTimestamp
+    private Timestamp deletedAt;
 }

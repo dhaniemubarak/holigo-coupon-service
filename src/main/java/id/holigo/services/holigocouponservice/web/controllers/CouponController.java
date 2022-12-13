@@ -56,26 +56,29 @@ public class CouponController {
         if (isPublic != null && isPublic) {
             if (category != null && !category.isEmpty()) {
                 switch (category) {
-                    case "airlines" -> {
+                    case "airlines", "transportation" -> {
                         serviceIds.add(1);
-                        coupons = couponRepository.findAllByIsPublicAndIsShowAndServiceIdIn(true, true, serviceIds);
+                        serviceIds.add(3);
+                        coupons = couponRepository.findAllByDeletedAtIsNullAndIsPublicAndIsShowAndServiceIdIn(true, true, serviceIds);
                     }
                     case "hotel" -> {
                         serviceIds.add(28);
-                        coupons = couponRepository.findAllByIsPublicAndIsShowAndServiceIdIn(true, true, serviceIds);
+                        coupons = couponRepository.findAllByDeletedAtIsNullAndIsPublicAndIsShowAndServiceIdIn(true, true, serviceIds);
                     }
                     case "bill" -> {
                         serviceIds.add(28);
-                        coupons = couponRepository.findAllByIsPublicAndIsShowAndServiceIdNotIn(true, true,
+                        serviceIds.add(1);
+                        serviceIds.add(3);
+                        coupons = couponRepository.findAllByDeletedAtIsNullAndIsPublicAndIsShowAndServiceIdNotIn(true, true,
                                 serviceIds);
                     }
-                    default -> coupons = couponRepository.findAllByIsPublicAndIsShow(true, true);
+                    default -> coupons = couponRepository.findAllByDeletedAtIsNullAndIsPublicAndIsShow(true, true);
                 }
             } else {
-                coupons = couponRepository.findAllByIsPublicAndIsShow(true, true);
+                coupons = couponRepository.findAllByDeletedAtIsNullAndIsPublicAndIsShow(true, true);
             }
         } else if (userId != null) {
-            List<CouponUser> couponUsers = couponUserRepository.findAllByUserId(userId);
+            List<CouponUser> couponUsers = couponUserRepository.findAllByDeletedAtIsNullAndUserId(userId);
             if (couponUsers.size() > 0) {
                 couponUsers.forEach(action -> {
                     Coupon coupon = action.getCoupon();
@@ -84,8 +87,8 @@ public class CouponController {
                     action.setCoupon(coupon);
                     if (category != null && !category.isEmpty()) {
                         switch (category) {
-                            case "airlines":
-                                if (action.getCoupon().getServiceId() == 1) {
+                            case "airlines", "transportation":
+                                if (action.getCoupon().getServiceId() == 1 || action.getCoupon().getServiceId() == 3) {
                                     coupons.add(action.getCoupon());
                                 }
                                 break;
@@ -95,7 +98,7 @@ public class CouponController {
                                 }
                                 break;
                             case "bill":
-                                if (action.getCoupon().getServiceId() != 28 && action.getCoupon().getServiceId() != 1) {
+                                if (action.getCoupon().getServiceId() != 28 && action.getCoupon().getServiceId() != 1 && action.getCoupon().getServiceId() != 3) {
                                     coupons.add(action.getCoupon());
                                 }
                                 break;
